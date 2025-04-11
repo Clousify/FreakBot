@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -20,20 +26,38 @@ public class Robot extends TimedRobot {
   private final DifferentialDrive m_robotDrive;
   private final CommandXboxController driver1Controller = new CommandXboxController(0);
 
-  private final Spark m_leftMotor = new Spark(1);
-  private final Spark m_leftMotor2 = new Spark(2);
-  private final Spark m_rightMotor = new Spark(0);
-  private final Spark m_rightMotor2 = new Spark(3);
+  private final SparkMax m_leftMotor = new SparkMax(1, MotorType.kBrushless);
+  private final SparkMax m_leftMotor2 = new SparkMax(1, MotorType.kBrushless);
+  private final SparkMax m_rightMotor = new SparkMax(1, MotorType.kBrushless);
+  private final SparkMax m_rightMotor2 = new SparkMax(1, MotorType.kBrushless);
+
+  private SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
+  private SparkMaxConfig rightMotor2Config = new SparkMaxConfig();
+  private SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
+  private SparkMaxConfig leftMotor2Config = new SparkMaxConfig();
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    m_rightMotor.setInverted(true);
+    rightMotorConfig
+      .idleMode(IdleMode.kBrake)
+      .inverted(false);
+    
+    rightMotor2Config
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)
+      .follow(m_rightMotor);
 
-    m_rightMotor.addFollower(m_rightMotor2);
-    m_leftMotor.addFollower(m_leftMotor2);
+    leftMotorConfig
+      .idleMode(IdleMode.kBrake)
+      .inverted(true);
+    
+    leftMotor2Config
+      .idleMode(IdleMode.kBrake)
+      .inverted(true)
+      .follow(m_leftMotor);
 
     m_robotDrive = new DifferentialDrive(m_leftMotor::set, m_rightMotor::set);
 
